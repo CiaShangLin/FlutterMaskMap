@@ -1,8 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mask_map/MainViewModel.dart';
+import 'package:flutter_mask_map/MaskDataService.dart';
+import 'package:flutter_mask_map/StateResponse.dart';
 import 'package:flutter_mask_map/mask_bean.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,134 +21,104 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
+
+  MainViewModel mainViewModel = MainViewModel(MaskDataService());
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String dropdownvalue = '基隆市';
-  var items = [
-    '基隆市',
-    '臺北市',
-    '新北市',
-    '桃園市',
-    '新竹市',
-    '新竹縣',
-    '苗栗縣',
-    '臺中市',
-    '彰化縣',
-    '南投縣',
-    '雲林縣',
-    '嘉義市',
-    '嘉義縣',
-    '臺南市',
-    '高雄市',
-    '屏東縣',
-    '宜蘭縣',
-    '花蓮縣',
-    '臺東縣',
-    '澎湖縣',
-    '金門縣',
-    '連江縣'
-  ];
-
-  var init = false;
-  var map = Map<String, Set<String>>();
+  MainViewModel get mainViewModel => widget.mainViewModel;
 
   @override
   void initState() {
-    items.forEach((element) {
-      map.putIfAbsent(element, () => Set());
-    });
-
-    rootBundle.loadString("assets/mask.json").then((value) {
-      var bean = MaskBean.fromJson(jsonDecode(value));
-      bean.features?.forEach((element) {
-        var country = element.properties?.county ?? "";
-        var town = element.properties?.town ?? "";
-        map[country]?.add(town);
-      });
-
-      setState(() {
-        init = true;
-      });
-    }).onError((error, stackTrace) {
-      print(error);
-    });
+    super.initState();
+    mainViewModel.getMaskData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("口罩地圖"),
-      ),
-      body: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildPopupMenuButton(),
-                _buildPopupMenuButton2(),
-              ],
-            )
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.map),
-      ),
-    );
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => mainViewModel),
+        ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("口罩地圖"),
+          ),
+          body: BlocBuilder<MainViewModel, StateResponse<MaskBean>>(
+            builder: (context, stateResponse) {
+              print("BlocBuilder:${stateResponse.status}");
+              switch (stateResponse.status) {
+                case Status.LOADING:
+                  return Center(
+                    child: SpinKitPouringHourGlass(color: Colors.blue),
+                  );
+                case Status.ERROR:
+                  return Center(
+                    child: Text("${stateResponse.error}"),
+                  );
+                case Status.SUCCESS:
+                  return Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildCountryButton(),
+                            _buildTownButton(),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+              }
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {},
+            child: const Icon(Icons.map),
+          ),
+        ));
   }
 
-  Widget _buildPopupMenuButton() {
+  DropdownButton _buildCountryButton() {
     return DropdownButton(
-      value: dropdownvalue,
+      value: mainViewModel.selectCounty,
       icon: const Icon(Icons.keyboard_arrow_down),
-      items: items.map((String items) {
+      items: MainViewModel.country.map((String items) {
         return DropdownMenuItem(
           value: items,
           child: Text(items),
         );
       }).toList(),
       onChanged: (value) {
-        setState(() {
-          dropdownvalue = value.toString();
-        });
+        mainViewModel.switchCountry(value);
       },
     );
   }
 
-  Widget _buildPopupMenuButton2() {
-    if (!init) {
-      return SizedBox();
-    }
-
-    var list = map[dropdownvalue]?.toList() ?? [];
-    print(list);
-    
+  DropdownButton _buildTownButton() {
     return DropdownButton(
-      value: list[0],
+      value: mainViewModel.selectTown,
       icon: const Icon(Icons.keyboard_arrow_down),
-      items: List.generate(list.length, (index) {
-        print(list[index]);
-       return DropdownMenuItem(child: Text(list[index]),value: list[index],);
-      }),
+      items: mainViewModel.getTownList().map((String items) {
+        return DropdownMenuItem(
+          value: items,
+          child: Text(items),
+        );
+      }).toList(),
       onChanged: (value) {
-        setState(() {
-
-        });
+        mainViewModel.switchTown(value);
       },
     );
   }
