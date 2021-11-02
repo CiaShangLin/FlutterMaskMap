@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mask_map/MaskDataService.dart';
-import 'package:flutter_mask_map/StateResponse.dart';
-import 'package:flutter_mask_map/mask_bean.dart';
+import 'package:flutter_mask_map/Home/MaskDataService.dart';
+import 'package:flutter_mask_map/Api/StateResponse.dart';
+import 'package:flutter_mask_map/Bean/mask_bean.dart';
 
 class MainViewModel extends Cubit<StateResponse<MaskBean>> {
   static List<String> country = [
@@ -28,10 +28,12 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
     '臺東縣',
     '澎湖縣',
     '金門縣',
-    '連江縣'
+    '連江縣',
   ];
 
-  MainViewModel(this._maskDataService) : super(StateResponse.Loading());
+  MainViewModel(this._maskDataService) : super(StateResponse.Loading()){
+    getMaskData();
+  }
 
   //注入DataService
   IMaskDataService _maskDataService;
@@ -49,6 +51,9 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
 
   //讀檔json
   void getMaskData() {
+    if (_response.data != null) {
+      return;
+    }
     _maskDataService.getMaskData().then((value) {
       var bean = MaskBean.fromJson(jsonDecode(value.toString()));
       _response = StateResponse.Success(bean);
@@ -82,10 +87,18 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
   }
 
   List<String> getTownList() {
-    if (_countryTown[_selectCounty] == null) {
-      _initTown(_response.data?.features);
-    }
     return _countryTown[_selectCounty] ?? [];
+  }
+
+  List<Features> filterMaskData() {
+    List<Features> list = [];
+    response.data?.features?.where((element) =>
+    element.properties?.county == _selectCounty &&
+        element.properties?.town == _selectTown).forEach((element) {
+      list.add(element);
+    });
+    print(list);
+    return list;
   }
 
   void switchCountry(String country) {

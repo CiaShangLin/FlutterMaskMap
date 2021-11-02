@@ -15,10 +15,14 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_bloc: ^7.3.1
   flutter_spinkit: ^5.1.0
+  google_maps_flutter: ^2.1.0
+  permission_handler: ^8.2.5
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
 #  flutter_lints: ^1.0.0
 

@@ -28,7 +28,6 @@
 
 
 class MaskBean {
-  int a = 0;
   String? _type;
   List<Features>? _features;
 
