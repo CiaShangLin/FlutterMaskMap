@@ -40,8 +40,10 @@ class _GoogleMapActivityState extends State<GoogleMapActivity> {
         markerId: MarkerId("${element.properties?.id}"),
         position: LatLng(element.geometry?.coordinates?[1] ?? 0.0,
             element.geometry?.coordinates?[0] ?? 0.0),
+        onTap: (){
+          print(element.properties?.name);
+        }
       );
-      print(marker);
       markers.add(marker);
     });
 
