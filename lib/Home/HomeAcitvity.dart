@@ -62,16 +62,22 @@ class _HomeActivityState extends State<HomeActivity> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        GoogleMapActivity(mainViewModel.filterMaskData())));
+            gotoGoogleMapActivity(null);
           },
           child: const Icon(Icons.map),
         ),
       ),
     );
+  }
+
+  void gotoGoogleMapActivity(Features? specify) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => GoogleMapActivity(
+                  mainViewModel.filterMaskData(),
+                  specify: specify,
+                )));
   }
 
   Widget _buildSuccess() {
@@ -146,61 +152,68 @@ class _HomeActivityState extends State<HomeActivity> {
   }
 
   Widget _buildMaskItem(Features? features) {
-    return Container(
-      margin: EdgeInsets.all(16),
-      height: 100,
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.black26),
-          boxShadow: [BoxShadow(blurRadius: 4, offset: Offset(0, 2))]),
-      child: Column(
-        children: [
-          Text(
-            '${features?.properties?.name ?? ""}',
-            style: TextStyle(
-                fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: [
-                  Text(
-                    '大人口罩',
-                    style: _titleStyle,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    '${features?.properties?.maskAdult ?? 0}',
-                    style: _countStyle,
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text(
-                    '小孩口罩',
-                    style: _titleStyle,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text(
-                    '${features?.properties?.maskChild ?? 0}',
-                    style: _countStyle,
-                  ),
-                ],
-              )
-            ],
-          )
-        ],
+    return InkWell(
+      onTap: () {
+        gotoGoogleMapActivity(features);
+      },
+      child: Container(
+        margin: EdgeInsets.all(16),
+        height: 100,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black26),
+            boxShadow: [BoxShadow(blurRadius: 4, offset: Offset(0, 2))]),
+        child: Column(
+          children: [
+            Text(
+              '${features?.properties?.name ?? ""}',
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      '大人口罩',
+                      style: _titleStyle,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      '${features?.properties?.maskAdult ?? 0}',
+                      style: _countStyle,
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      '小孩口罩',
+                      style: _titleStyle,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Text(
+                      '${features?.properties?.maskChild ?? 0}',
+                      style: _countStyle,
+                    ),
+                  ],
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

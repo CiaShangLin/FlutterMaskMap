@@ -9,9 +9,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class GoogleMapActivity extends StatefulWidget {
-  GoogleMapActivity(this.features);
+  GoogleMapActivity(this.features, {this.specify = null});
 
   List<Features> features;
+  Features? specify;
 
   @override
   State<StatefulWidget> createState() => _GoogleMapActivityState();
@@ -20,7 +21,7 @@ class GoogleMapActivity extends StatefulWidget {
 class _GoogleMapActivityState extends State<GoogleMapActivity> {
   Completer<GoogleMapController> _controller = Completer();
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
+  CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(24.163032717608935, 120.64115664129679),
     zoom: 16.0,
   );
@@ -36,6 +37,21 @@ class _GoogleMapActivityState extends State<GoogleMapActivity> {
     }
     setMarkers();
     getLocationPermission();
+    initPosition();
+  }
+
+  Future<void> initPosition() async {
+    if (widget.specify != null) {
+      _kGooglePlex = CameraPosition(
+        target: LatLng(widget.specify!.geometry!.coordinates![1],
+            widget.specify!.geometry!.coordinates![0]),
+        zoom: 16.0,
+      );
+      await _controller.future.then((value) {
+        value.showMarkerInfoWindow(
+            MarkerId("${widget.specify!.properties!.id}"));
+      });
+    }
   }
 
   void setMarkers() {
