@@ -21,6 +21,8 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def googleMapKey = localProperties.getProperty('flutter.google_map_key')
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
@@ -48,6 +50,9 @@ android {
         targetSdkVersion 31
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        //使用local.properties這樣就不會把key傳到github了
+        manifestPlaceholders = [google_map_key: googleMapKey]
     }
 
     buildTypes {
