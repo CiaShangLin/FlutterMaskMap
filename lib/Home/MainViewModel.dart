@@ -31,7 +31,7 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
     '連江縣',
   ];
 
-  MainViewModel(this._maskDataService) : super(StateResponse.Loading()){
+  MainViewModel(this._maskDataService) : super(StateResponse.Loading()) {
     getMaskData();
   }
 
@@ -59,6 +59,11 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
       _response = StateResponse.Success(bean);
       _initCountryMap();
       _initTown(bean.features);
+
+      //測試用
+      _selectCounty = "臺中市";
+      _selectTown = "西屯區";
+
       emit(_response);
     }).onError((error, stackTrace) {
       _response = StateResponse.Error(error.toString());
@@ -92,12 +97,13 @@ class MainViewModel extends Cubit<StateResponse<MaskBean>> {
 
   List<Features> filterMaskData() {
     List<Features> list = [];
-    response.data?.features?.where((element) =>
-    element.properties?.county == _selectCounty &&
-        element.properties?.town == _selectTown).forEach((element) {
+    response.data?.features
+        ?.where((element) =>
+            element.properties?.county == _selectCounty &&
+            element.properties?.town == _selectTown)
+        .forEach((element) {
       list.add(element);
     });
-    print(list);
     return list;
   }
 

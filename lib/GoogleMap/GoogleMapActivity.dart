@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mask_map/Bean/mask_bean.dart';
+import 'package:flutter_mask_map/GoogleMap/MarkerInfoWidget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 class GoogleMapActivity extends StatefulWidget {
   GoogleMapActivity(this.features);
@@ -25,8 +25,8 @@ class _GoogleMapActivityState extends State<GoogleMapActivity> {
     zoom: 16.0,
   );
 
-  var zoom = 16.0;
   var markers = Set<Marker>();
+  OverlayEntry? markerInfo;
 
   @override
   void initState() {
@@ -34,29 +34,50 @@ class _GoogleMapActivityState extends State<GoogleMapActivity> {
     if (defaultTargetPlatform == TargetPlatform.android) {
       AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
     }
+    setMarkers();
+    getLocationPermission();
+  }
 
+  void setMarkers() {
     widget.features.forEach((element) {
+      var latLng = LatLng(element.geometry?.coordinates?[1] ?? 0.0,
+          element.geometry?.coordinates?[0] ?? 0.0);
       var marker = Marker(
+        infoWindow: InfoWindow(
+            title: element.properties?.name,
+            snippet:
+                "大人口罩:${element.properties?.maskAdult}\n小孩口罩:${element.properties?.maskChild}"),
         markerId: MarkerId("${element.properties?.id}"),
-        position: LatLng(element.geometry?.coordinates?[1] ?? 0.0,
-            element.geometry?.coordinates?[0] ?? 0.0),
-        onTap: (){
-          print(element.properties?.name);
-        }
+        position: latLng,
+        // consumeTapEvents: true,
+        // onTap: () async {
+        //   var controller = await _controller.future.then((value) => value);
+        //   var info = await controller
+        //       .getScreenCoordinate(latLng)
+        //       .then((value) => value);
+        //   if (markerInfo != null) {
+        //     markerInfo?.remove();
+        //     markerInfo = null;
+        //   } else {
+        //     markerInfo = OverlayEntry(builder: (BuildContext context) {
+        //       return MarkerInfoWidget(
+        //           element, Offset(info.x.toDouble(), info.y.toDouble()));
+        //     });
+        //     Overlay.of(context)?.insert(markerInfo!);
+        //   }
+        // },
       );
       markers.add(marker);
     });
-
-    getLocationPermission();
   }
 
   Future<void> getLocationPermission() async {
     var status = await Permission.location.status;
-    if(status != PermissionStatus.granted){
-      await Permission.location.request();
-      setState(() {
-
-      });
+    if (status != PermissionStatus.granted) {
+      var isGranted = await Permission.location.request().isGranted;
+      if (isGranted) {
+        setState(() {});
+      }
     }
   }
 
@@ -84,7 +105,5 @@ class _GoogleMapActivityState extends State<GoogleMapActivity> {
     // controller.animateCamera(CameraUpdate.newCameraPosition(
     //   _kGooglePlex,
     // ));
-    zoom -= 1;
-    controller.moveCamera(CameraUpdate.zoomTo(zoom));
   }
 }
