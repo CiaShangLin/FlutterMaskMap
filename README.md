@@ -1,16 +1,22 @@
 # flutter_mask_map
 
-A new Flutter application.
+Flutter口罩地圖
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Flutter口罩地圖
 
-A few resources to get you started if this is your first Flutter project:
+功能
+可以顯示台灣地區每個藥局的剩餘口罩量，搭配Google Map顯示地點方便查看。
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+目的
+主要是為了練習Flutter和Bloc
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Library
+Google Map(地圖)
+Bloc(狀態管理)
+
+示意圖
+
+
+操作Webm(因為Gif檔案太大github會不能上傳)
