@@ -2,6 +2,8 @@
 
 ## Flutter口罩地圖
 
+### [Apk](https://github.com/CiaShangLin/FlutterMaskMap/blob/master/apk/flutter_mask_map "Apk")
+
 ### 功能
 可以顯示台灣地區每個藥局的剩餘口罩量，搭配Google Map顯示地點方便查看。
 
